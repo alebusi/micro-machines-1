@@ -1,0 +1,23 @@
+{
+  "name": "Micro Machines",
+  "version": "0.0.0",
+  "authors": [
+    "Stephen Cooper"
+  ],
+  "description": "HTML5 version of Micro Machines",
+  "main": "index.html",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "phaser": "~2.4.3"
+  }
+}
