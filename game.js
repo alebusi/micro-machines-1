@@ -1,145 +1,239 @@
-var game = new Phaser.Game('100%', '100%', Phaser.AUTO, 'game', { preload: preload, create: create, update:update, render:render });
+var game = new Phaser.Game("100%", "100%", Phaser.AUTO, 'game', { preload: preload, create: create, update:update, render: render});
 
-var boat,
+var speed = 0,
+    levelMap,
+    slowLayerBodies,
+    player,
+    background,
     emitter,
-    cursors,
-    space,
-    circle,
-    map;
+    polys = [],
+    checkpoints = [],
+    finishLine = {},
+    jumps = [],
+    graphics,
+    circle;
+
+var s;
 
 function preload() {
-
-    //  You can fill the preloader with as many assets as your game requires
-
-    //  Here we are loading an image. The first parameter is the unique
-    //  string by which we'll identify the image later in our code.
-
-    //  The second parameter is the URL of the image (relative)
-    game.load.image('map', 'assets/pics/map1_slow.png');
+    game.load.image('background', 'assets/pics/map1.png');
     game.load.image('boat1', 'assets/pics/boat2.png');
     game.load.image('trail', 'assets/pics/boatTrail.png');
-
+    game.load.tilemap('levelData', 'assets/levels/levelOne.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.physics('physicsData', 'assets/levels/levelOne.json');
 }
 
 function create() {
+    game.renderer.renderSession.roundPixels = true
+    console.log(game.cache.getPhysicsData('physicsData'))
+    var cacheData = game.cache.getPhysicsData('physicsData');
 
-    //  This creates a simple sprite that is using our loaded image and
-    //  displays it on-screen
-
-
+    //Setup physics system
     game.physics.startSystem(Phaser.Physics.P2JS);
-    map = game.add.sprite(0, 0, 4041, 2883, 'map');
 
-    game.physics.p2.enable([map], true);
+    //Load level data for collision areas
+    levelMap = game.add.tilemap('levelData');
+    slowLayerBodies = game.physics.p2.convertCollisionObjects(levelMap, "collide", true);
 
+    //add background image and set world size
+    background = game.add.tileSprite(0, 0, 4040, 2880, 'background');
     game.world.setBounds(0, 0, 4041, 2883);
 
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    //setup player emitter. Needs to be first so its below player
+    emitter = game.add.emitter(0, 0, 100);      
+    emitter.makeParticles('trail');
+    emitter.y = 0;
+    emitter.x = -16;
+    emitter.lifespan = 200;
 
-  emitter = game.add.emitter(0, 0, 100);
 
-    var graphics = game.add.graphics(0, 0);
+    cacheData.layers.filter(function (layer){
+        return layer.name === 'startPos';
+    }).forEach(function (layer){
+        layer.objects.forEach(function (obj) {
+            if (obj.properties.hasOwnProperty('player') && obj.properties.player === '1') {
+                player = game.add.sprite(obj.x, obj.y, 'boat1'); 
+                player.angle = obj.properties.angle;
+            }
+        });
+    });
 
-    // graphics.lineStyle(2, 0xffd900, 1);
 
-    graphics.beginFill('black', 1);
+    //setup player
+    game.physics.p2.enable(player);
+    game.camera.follow(player);   
 
-   circle =  graphics.drawCircle(0, 0, 30);
-
-    sprite = game.add.sprite(200, 200, 'boat1');
-    sprite.anchor.setTo(0.5, 0.5);
-
-    game.physics.enable(sprite, Phaser.Physics.ARCADE);
-
+    //init input
     cursors = game.input.keyboard.createCursorKeys();
 
-    game.camera.follow(circle);
+    graphics = game.add.graphics(0, 0);
 
-    //game.camera.deadzone = new Phaser.Rectangle(100, 100, 50, 50);
-  emitter.makeParticles('trail');
-  
-  // Attach the emitter to the sprite
-  //sprite.addChild(emitter);
-  
-  //position the emitter relative to the sprite's anchor location
-  emitter.y = 0;
-  emitter.x = -16;
-  
-  // setup options for the emitter
-  emitter.lifespan = 200;
+    graphics.beginFill(0xFF33ff, 0.5);
 
-    sprite.body.collideWorldBounds = true;
-    sprite.body.maxVelocity.x = 500;
-    sprite.body.maxVelocity.y = 500;
-    sprite.body.drag.set(200);
+    cacheData.layers.filter(function (layer){
+        return layer.name === 'slow';
+    }).forEach(function (layer){
+        layer.objects.forEach(function (obj) {
+            var poly = new Phaser.Polygon(obj.polyline.map(function (p) {
 
-    space = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
-    space.onDown.add(bounce, this);
+                return new Phaser.Point(obj.x, obj.y).add(p.x, p.y);
+            }));
+           // graphics.drawPolygon(poly.points);
+            polys.push(poly);
+        });
+    });
+
+    cacheData.layers.filter(function (layer){
+        return layer.name === 'checkpoints';
+    }).forEach(function (layer){
+        layer.objects.forEach(function (obj) {
+            var poly = new Phaser.Polygon(obj.polyline.map(function (p) {
+
+                return new Phaser.Point(obj.x, obj.y).add(p.x, p.y);
+            }));
+            graphics.drawPolygon(poly.points);
+            poly.ID = parseInt(obj.properties.order);
+            checkpoints.push(poly);
+        });
+    });
+
+    cacheData.layers.filter(function (layer){
+        return layer.name === 'jump';
+    }).forEach(function (layer){
+        layer.objects.forEach(function (obj) {
+            var poly = new Phaser.Polygon(obj.polyline.map(function (p) {
+
+                return new Phaser.Point(obj.x, obj.y).add(p.x, p.y);
+            }));
+            jumps.push(poly);
+        });
+    });
 
 
+    graphics.endFill();
 
+    cacheData.layers.filter(function (layer){
+        return layer.name === 'finishLine';
+    }).forEach(function (layer){
+        finishLine = new Phaser.Polygon(layer.objects[0].polyline.map(function (p) {
+
+            return new Phaser.Point(layer.objects[0].x, layer.objects[0].y).add(p.x, p.y);
+        }));
+    });
+
+            s = game.add.tween(player.scale);
+            s.to({x: 1.5, y:1.5}, 300, Phaser.Easing.Linear.None);
+            s.to({x: 1, y:1}, 300, Phaser.Easing.Linear.None);
 }
-var speed = 0;
-var bouncing = false;
+var maxSpeed = 500;
+var isInCheckpoint = false;
+
+var lapCount = 0,
+    passedCheck = {};
+
+function checkProgress(){
+    var keys = Object.keys(passedCheck);
+    return keys.length === checkpoints.length;
+}
+
+function moveToCenter () {
+    var key = Object.keys(passedCheck).map(function(i){ return parseInt(i); }).sort(function(a, b){
+        return b - a;
+    })[0],
+        checkpoint,
+        center;
+
+    if (key !== undefined) {
+        checkpoint = checkpoints.filter(function (i) {
+            //key is string, ID is int
+            return i.ID == key;
+        })[0];
+
+      player.kill();
+        center = getCenter(checkpoint.points);
+      player.reset(center.x, center.y);
+    }
+}
+
+var getCenter = function(arr)
+{
+    var x = arr.map(function(a){ return a.x });
+    var y = arr.map(function(a){ return a.y });
+    var minX = Math.min.apply(null, x);
+    var maxX = Math.max.apply(null, x);
+    var minY = Math.min.apply(null, y);
+    var maxY = Math.max.apply(null, y);
+    return {x: ((minX + maxX)/2), y: ((minY + maxY)/2)};
+}
 
 function update() {
+maxSpeed = 500;
+    polys.forEach(function (p){
+        if (p.contains(player.x, player.y)) {
+            maxSpeed = 200;
+        }
+    });
 
-    //sprite.body.velocity.x = 0;
-    //sprite.body.velocity.y = 0;
-    sprite.body.angularVelocity = 0;
+    for (var i = 0; i < checkpoints.length; i ++) {
+        if (checkpoints[i].contains(player.x, player.y) && !passedCheck.hasOwnProperty(checkpoints[i].ID)) {
+            var keys = Object.keys(passedCheck).sort(),
+                currentKey = parseInt(keys[keys.length -1]) +1;
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.LEFT) && speed > 10)
-    {
-        sprite.body.angularVelocity = -200;
+            if (checkpoints[i].ID === 0 || currentKey === checkpoints[i].ID) {
+              passedCheck[checkpoints[i].ID] = true;
+            }
+        }
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.RIGHT) && speed > 10)
-    {
-        sprite.body.angularVelocity = 200;
+
+    if (finishLine.contains(player.x, player.y) && checkProgress()) {
+        lapCount += 1;
+        passedCheck = {};
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.UP))
+    //checkpoints.forEach(function (check) {
+    //});
+
+    jumps.forEach(function (jump) {
+        if(jump.contains(player.x, player.y) && !s.isRunning) {
+            s.start();
+        }
+    });
+
+    player.body.angularVelocity = 0;
+
+    if (cursors.left.isDown && !s.isRunning)
     {
-        speed = speed < 500 ? speed + 10 : 500;
-        //game.physics.arcade.velocityFromAngle(sprite.angle, 500, sprite.body.velocity);
-       // game.physics.arcade.accelerationFromRotation(sprite.rotation, 500, sprite.body.velocity);
+        player.body.angularVelocity = -5;
+    }
+    else if (cursors.right.isDown && !s.isRunning)
+    {
+        player.body.angularVelocity = 5;
+    }
+
+    if (cursors.up.isDown)
+    {
+        speed = speed < maxSpeed ? speed + 10 : maxSpeed;
         emitter.emitParticle();
     } else {
         speed = speed > 0 ? speed - 10 : 0;
     }
 
-    game.physics.arcade.accelerationFromRotation(sprite.rotation, speed, sprite.body.velocity);
-
-    emitter.x = sprite.x ;
-    emitter.y = sprite.y;
-
-    if(bouncing === true){
-
-    circle.x = sprite.x;
-    } else {
-
-    circle.x = sprite.x;
-    circle.y = sprite.y;
+    if (cursors.down.isDown) {
+        moveToCenter();
     }
 
-    emitter.rotation = -this.rotation;
 
+    emitter.x = player.x ;
+    emitter.y = player.y;
+   //circle.x = player.x;
+    //circle.y = player.y;
+
+    player.body.moveForward(speed)    
 }
 
-function bounce() {
-
-    //ball.y = 0;
-    bouncing = true;
-    var bounce=game.add.tween(sprite);
-
-    bounce.to({ y: sprite.y - 50 }, 200).to({ y: sprite.y}, 200);
-    
-    bounce.onComplete.add(function(){
-        bouncing = false;
-    }, this);
-    bounce.start();
-
-}
 function render() {
 
+    game.debug.text('Lap: ' + lapCount, 32, 32, 'black');
+    game.debug.text(JSON.stringify(passedCheck), 32, 64, 'black');
 
 }

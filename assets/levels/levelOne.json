@@ -374,7 +374,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
@@ -474,7 +474,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
@@ -483,226 +483,6 @@
          "draworder":"topdown",
          "height":20,
          "name":"checkpoints",
-         "objects":[
-                {
-                 "height":0,
-                 "id":24,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":-36
-                        }, 
-                        {
-                         "x":-1212,
-                         "y":-36
-                        }, 
-                        {
-                         "x":-1212,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "properties":
-                    {
-                     "pos":"1"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":1414,
-                 "y":1440
-                }, 
-                {
-                 "height":0,
-                 "id":25,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":-1008
-                        }, 
-                        {
-                         "x":50.5,
-                         "y":-1008
-                        }, 
-                        {
-                         "x":50.5,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "properties":
-                    {
-                     "pos":"2"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":1818,
-                 "y":1008
-                }, 
-                {
-                 "height":0,
-                 "id":29,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-101,
-                         "y":0
-                        }, 
-                        {
-                         "x":-101,
-                         "y":36
-                        }, 
-                        {
-                         "x":1010,
-                         "y":36
-                        }, 
-                        {
-                         "x":1010,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "properties":
-                    {
-                     "pos":"3"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":3030,
-                 "y":1152
-                }, 
-                {
-                 "height":0,
-                 "id":30,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":576
-                        }, 
-                        {
-                         "x":-50.5,
-                         "y":576
-                        }, 
-                        {
-                         "x":-50.5,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "properties":
-                    {
-                     "pos":"4"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":2828,
-                 "y":2304
-                }, 
-                {
-                 "height":0,
-                 "id":31,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":576
-                        }, 
-                        {
-                         "x":50.5,
-                         "y":576
-                        }, 
-                        {
-                         "x":50.5,
-                         "y":0
-                        }, 
-                        {
-                         "x":0,
-                         "y":0
-                        }],
-                 "properties":
-                    {
-                     "pos":"5"
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":1414,
-                 "y":2304
-                }, 
-                {
-                 "height":0,
-                 "id":32,
-                 "name":"",
-                 "polyline":[
-                        {
-                         "x":0,
-                         "y":0
-                        }, 
-                        {
-                         "x":-404,
-                         "y":-288
-                        }],
-                 "properties":
-                    {
-
-                    },
-                 "rotation":0,
-                 "type":"",
-                 "visible":true,
-                 "width":0,
-                 "x":1515,
-                 "y":1152
-                }],
-         "opacity":1,
-         "type":"objectgroup",
-         "visible":false,
-         "width":20,
-         "x":0,
-         "y":0
-        }, 
-        {
-         "draworder":"topdown",
-         "height":20,
-         "name":"checkpoints2",
          "objects":[
                 {
                  "height":0,
@@ -1026,7 +806,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
@@ -1059,7 +839,7 @@
              "player":"1"
             },
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
@@ -1159,7 +939,7 @@
                 }],
          "opacity":1,
          "type":"objectgroup",
-         "visible":false,
+         "visible":true,
          "width":20,
          "x":0,
          "y":0
